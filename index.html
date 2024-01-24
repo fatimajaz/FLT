@@ -198,11 +198,10 @@ onAuthStateChanged(auth, (user) => {
   toggleSignInButtonAndUserContainer(user);
 });
 
-// Function to handle Google Sign-In
 function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
 
-  signInWithPopup(auth, provider)
+  signInWithRedirect(auth, provider)
     .catch((error) => {
       // Handle errors
       const errorCode = error.code;
@@ -212,6 +211,7 @@ function signInWithGoogle() {
       console.error(errorCode, errorMessage, email, credential);
     });
 }
+
 
 window.addEventListener('load', () => {
   const form = document.querySelector("#new-task-form");
@@ -294,6 +294,13 @@ window.addEventListener('load', () => {
     task_delete_el.addEventListener('click', () => {
       list_el.removeChild(task_el);
     });
+      // Handle the redirect
+getRedirectResult(auth)
+  .then((result) => {
+    // Handle the result
+  })
+  .catch((error) => {
+    // Handle errors
   });
 });
 </script>
