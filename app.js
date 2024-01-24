@@ -37,3 +37,28 @@ firebase.auth().signInWithEmailAndPassword(email, password)
     const errorMessage = error.message;
     console.error(errorCode, errorMessage);
   });
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+
+// ...
+
+function signInWithGoogle() {
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            // Google Sign-In was successful
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            const user = result.user;
+            console.log(user);
+        })
+        .catch((error) => {
+            // Handle errors
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            const email = error.email;
+            const credential = GoogleAuthProvider.credentialFromError(error);
+            console.error(errorCode, errorMessage, email, credential);
+        });
+}
