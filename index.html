@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-auth.js"></script>
+
+    <style>
+        :root {
+            --dark: #ffffff;
+            --darker: #e3e3e3;
+            --darkest: #fdfdfd;
+            --grey: #2a2929;
+            --pink: #000000;
+            --purple: #000000;
+            --light: #000000;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--grey);
+            margin-bottom: 1rem;
+        }
+
+        main {
+            margin-top: 15px;
+        }
+
+        #tasks {
+            list-style-type: none;
+            padding: 0;
+            background-color: rgb(255, 255, 255);
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 35px;
+            margin-bottom: 5px;
+            padding-top: 5px;
+        }
+
+        .checkbox {
+            margin-right: 10px;
+            margin-left: 2px;
+            transform: scale(1); /* Adjust the scale as needed */
+        }
+
+        .content {
+            flex-grow: 1;
+        }
+
+        .text {
+            width: 200px;
+            margin-right: 10px;
+        }
+
+        .actions button {
+            cursor: pointer;
+            background-color: #bcf3be;
+            color: rgb(0, 0, 0);
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            margin: 0 5px;
+            transition-duration: 0.4s;
+            border-radius: 5px;
+        }
+
+        .actions button:hover {
+            background-color: white;
+            color: black;
+            border: 1px solid #bdeebf;
+        }
+
+        #new-task-input {
+            flex: 1 1 0%;
+            background-color: rgb(244, 243, 243);
+            border-radius: 1rem;
+            border: none;
+            width: fit-content;
+            margin-right: 0.5rem;
+            padding: 0.3rem;
+            padding-left: 0.8rem;
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        button,
+        #new-task-submit {
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: solid;
+            border-radius: 50%;
+            size: 90%;
+            transition: 0.4s;
+            background-color: #ffffff;
+        }
+
+        #new-task-submit:hover {
+            opacity: 0.8;
+            background-color: #bcf3be;
+        }
+
+        .edit,
+        .save {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Task List</h1>
+        <form id="new-task-form">
+            <input
+                type="text"
+                name="new-task-input" placeholder="Add new task"
+                id="new-task-input" />
+            <button type="submit" id="new-task-submit">
+                <i class='fas fa-arrow-up'></i>
+            </button>
+        </form>
+    </header>
+    <main>
+        <section class="task-list">
+            <div id="tasks">
+                <!-- Your tasks will be added here dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+       // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB1BOv6-tHs77DRnXK1cvpVpZ-iqSS_bog",
+  authDomain: "flabs-tasks.firebaseapp.com",
+  databaseURL: "https://flabs-tasks-default-rtdb.firebaseio.com",
+  projectId: "flabs-tasks",
+  storageBucket: "flabs-tasks.appspot.com",
+  messagingSenderId: "831343552471",
+  appId: "1:831343552471:web:eb98ba1a7cb04cd2f20d92",
+  measurementId: "G-24LVH2088R"
+};
+
+
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+
+    // Rest of your script...
+
+const email = "user@example.com";
+const password = "password123";
+
+firebase.auth().signInWithEmailAndPassword(email, password)
+  .then((userCredential) => {
+    // User signed in
+    const user = userCredential.user;
+    console.log(user);
+  })
+  .catch((error) => {
+    // Handle errors
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.error(errorCode, errorMessage);
+  });
+
+        window.addEventListener('load', () => {
+            const form = document.querySelector("#new-task-form");
+            const input = document.querySelector("#new-task-input");
+            const list_el = document.querySelector("#tasks");
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const task_el = document.createElement('div');
+                task_el.classList.add('task');
+
+                // Checkbox
+                const task_checkbox_el = document.createElement('input');
+                task_checkbox_el.type = 'checkbox';
+                task_checkbox_el.classList.add('checkbox');
+
+                // Append checkbox to task_el
+                task_el.appendChild(task_checkbox_el);
+
+                // Task content
+                const task_content_el = document.createElement('div');
+                task_content_el.classList.add('content');
+
+                // Task input
+                const task_input_el = document.createElement('div');
+                task_input_el.classList.add('text');
+                task_input_el.textContent = input.value;
+                task_input_el.setAttribute('contenteditable', 'true');
+
+                task_content_el.appendChild(task_input_el);
+
+                // Task actions
+                const task_actions_el = document.createElement('div');
+                task_actions_el.classList.add('actions');
+
+                // Edit button with pencil icon
+                const task_edit_el = document.createElement('button');
+                task_edit_el.classList.add('edit');
+                task_edit_el.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+                task_actions_el.appendChild(task_edit_el);
+
+                // Save button with check icon
+                const task_save_el = document.createElement('button');
+                task_save_el.classList.add('save');
+                task_save_el.innerHTML = '<i class="fas fa-check"></i>';
+                task_actions_el.appendChild(task_save_el);
+
+                // Delete button with trash icon
+                const task_delete_el = document.createElement('button');
+                task_delete_el.classList.add('delete');
+                task_delete_el.innerHTML = '<i class="fas fa-trash"></i>';
+                task_actions_el.appendChild(task_delete_el);
+
+                task_el.appendChild(task_content_el);
+                task_el.appendChild(task_actions_el);
+
+                list_el.appendChild(task_el);
+
+                input.value = '';
+
+                task_checkbox_el.addEventListener('change', () => {
+                    if (task_checkbox_el.checked) {
+                        list_el.removeChild(task_el);
+                    }
+                });
+
+                task_edit_el.addEventListener('click', () => {
+                    task_input_el.focus();
+                    task_edit_el.style.display = 'none';
+                    task_save_el.style.display = 'inline-block';
+                    // Set new task input text
+                });
+
+                task_save_el.addEventListener('click', () => {
+                    task_edit_el.style.display = 'inline-block';
+                    task_save_el.style.display = 'none';
+                });
+
+                task_delete_el.addEventListener('click', () => {
+                    list_el.removeChild(task_el);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
